@@ -90,3 +90,5 @@ WORKDIR /home/maya/
 
 
 # docker.exe run --rm -e LC_ALL=C.UTF-8 -it -v maya:/home/maya:rw rpi3:0.0.0.1 /bin/bash 
+# docker.exe build -t webos:0.0.0.1 .
+# docker.exe run --rm --name "webosteam" -e LC_ALL=C.UTF-8 -it -v exweb:/home/maya:rw webos:0.0.0.1 /bin/bash 
