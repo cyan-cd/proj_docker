@@ -1,0 +1,92 @@
+FROM ubuntu:20.04
+LABEL AUTHOR="thang.cd4174@gmail.com" 
+ARG DEBIAN_FRONTEND=noninteractive
+
+# yocto
+RUN apt update && apt upgrade -y \
+    && apt install -y gawk \
+    && apt install -y wget \
+    && apt install -y git \
+    && apt install -y diffstat \
+    && apt install -y unzip \
+    && apt install -y texinfo \
+    && apt install -y gcc \
+    && apt install -y build-essential \
+    && apt install -y chrpath \
+    && apt install -y socat \
+    && apt install -y cpio \
+    && apt install -y python3 \ 
+    && apt install -y python3-pip \
+    && apt install -y python3-pexpect \
+    && apt install -y xz-utils \
+    && apt install -y debianutils \ 
+    && apt install -y iputils-ping \
+    && apt install -y python3-git \
+    && apt install -y python3-jinja2 \
+    && apt install -y libegl1-mesa \
+    && apt install -y libsdl1.2-dev \
+    && apt install -y pylint3 \
+    && apt install -y xterm \
+    && apt install -y python3-subunit \
+    && apt install -y mesa-common-dev \
+    && apt install -y zstd \
+    && apt install -y liblz4-tool
+
+# install 'curl'
+RUN apt update && apt upgrade -y \
+    && apt-get install -y curl
+RUN ln -s /usr/bin/python3 /usr/bin/python
+# install 'python2-minimal'
+# RUN apt update && apt upgrade -y \
+#     && apt-get install -y python2-minimal
+# RUN ln -s /usr/bin/python2.7 /usr/bin/python
+
+# install 'locale'
+RUN apt update && apt upgrade -y \
+    && apt-get install locales \
+    && dpkg-reconfigure locales \
+    && locale-gen en_US.UTF-8 \
+    && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+    && export LANG=en_US.UTF-8
+
+# install 'qt5'
+RUN apt update && apt upgrade -y \
+    && apt-get install -y git-lfs 
+
+RUN apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# add sudoer
+RUN apt-get update && apt-get -y install sudo
+# add 'maya' user
+# RUN adduser maya
+RUN useradd -m maya && echo "maya:maya" | chpasswd && adduser maya sudo
+RUN echo '' > userpasswd maya
+RUN mkhomedir_helper maya
+RUN usermod --shell /bin/bash maya
+# add to root group
+RUN usermod -aG root maya
+
+# repo install manually
+USER maya
+RUN mkdir -p ~/.bin
+RUN echo "export PATH=/home/maya/.bin:/${PATH}/" >> ~/.bashrc
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
+RUN chmod a+rx ~/.bin/repo
+RUN git config --global user.email "thang.cao@lge.com"
+RUN git config --global user.name "thang.cao"
+
+USER maya
+RUN mkdir -p ~/rpi3
+RUN chmod 777 ~/rpi3
+# RUN cd rpi3
+# RUN git clone -b dunfell git://git.yoctoproject.org/poky.git ~/rpi3/poky
+# RUN git clone -b dunfell git://git.yoctoproject.org/meta-raspberrypi.git ~/rpi3/meta-raspberrypi
+# RUN git clone -b dunfell git://git.openembedded.org/meta-openembedded ~/rpi3/meta-openembedded
+# RUN ~/rpi3/poky/oe-init-build-env
+
+USER maya
+WORKDIR /home/maya/
+
+
+# docker.exe run --rm -e LC_ALL=C.UTF-8 -it -v maya:/home/maya:rw rpi3:0.0.0.1 /bin/bash 
